@@ -631,6 +631,7 @@ h3 {
 
 .professional-brand img {
   width: min(100%, 430px);
+  height: auto;
 }
 
 .professional-copy h2 {
@@ -717,8 +718,10 @@ h3 {
 
 .location-image img {
   width: 100%;
+  height: auto;
   aspect-ratio: 1.25 / 1;
   object-fit: cover;
+  object-position: center;
   box-shadow: var(--shadow);
 }
 
