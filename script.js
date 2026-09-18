@@ -1,18 +1,56 @@
 const menuButton = document.querySelector(".menu-toggle");
+const menuLabel = document.querySelector(".menu-label");
 const menu = document.querySelector(".main-nav");
 const header = document.querySelector(".site-header");
 const hero = document.querySelector(".hero");
+const heroVideo = document.querySelector(".hero-video");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let lockedScrollY = 0;
+let heroSequenceStarted = false;
 
 document.body.classList.add("motion-ready");
 
-if (reduceMotion) {
-  hero?.classList.add("is-entered");
-} else {
+function releaseHeroIntro() {
+  document.documentElement.classList.remove("hero-intro-lock");
+  hero?.classList.add("is-complete");
+}
+
+function startHeroSequence() {
+  if (heroSequenceStarted) return;
+  heroSequenceStarted = true;
+
   requestAnimationFrame(() => {
     requestAnimationFrame(() => hero?.classList.add("is-entered"));
   });
+
+  window.setTimeout(releaseHeroIntro, 1200);
+}
+
+if (reduceMotion) {
+  hero?.classList.add("is-entered");
+  heroVideo?.removeAttribute("autoplay");
+  releaseHeroIntro();
+} else {
+  heroVideo?.querySelectorAll("source[data-src]").forEach((source) => {
+    source.src = source.dataset.src;
+  });
+
+  if (heroVideo) {
+    heroVideo.muted = true;
+    heroVideo.defaultMuted = true;
+
+    heroVideo.addEventListener("canplay", () => heroVideo.classList.add("is-ready"), { once: true });
+    heroVideo.addEventListener("playing", startHeroSequence, { once: true });
+    heroVideo.addEventListener("error", () => {
+      heroVideo.classList.add("has-error");
+      startHeroSequence();
+    }, { once: true });
+    heroVideo.load();
+    heroVideo.play().catch(() => startHeroSequence());
+  }
+
+  window.setTimeout(startHeroSequence, 180);
+  window.setTimeout(releaseHeroIntro, 1400);
 }
 
 function updateHeader() {
@@ -46,6 +84,7 @@ function closeMenu({ returnFocus = false } = {}) {
   const wasOpen = menuButton?.getAttribute("aria-expanded") === "true";
   menuButton?.setAttribute("aria-expanded", "false");
   menuButton?.setAttribute("aria-label", "Abrir menu");
+  if (menuLabel) menuLabel.textContent = "Menu";
   menu?.classList.remove("is-open");
   header?.classList.remove("menu-active");
 
@@ -57,6 +96,7 @@ menuButton?.addEventListener("click", () => {
   const willOpen = menuButton.getAttribute("aria-expanded") !== "true";
   menuButton.setAttribute("aria-expanded", String(willOpen));
   menuButton.setAttribute("aria-label", willOpen ? "Fechar menu" : "Abrir menu");
+  if (menuLabel) menuLabel.textContent = willOpen ? "Fechar" : "Menu";
   menu?.classList.toggle("is-open", willOpen);
   header?.classList.toggle("menu-active", willOpen);
 
