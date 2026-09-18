@@ -981,12 +981,12 @@ h3 {
   .hero-portrait {
     position: absolute;
     z-index: 1;
-    inset: 420px 0 0;
+    inset: 470px 0 0;
     min-height: 0;
     width: 100%;
     margin: 0;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 15%, #000 34%);
-    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 15%, #000 34%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.55) 8%, #000 20%);
+    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.55) 8%, #000 20%);
   }
 
   .hero-portrait > img {
@@ -1121,7 +1121,7 @@ h3 {
   }
 
   .hero-portrait {
-    inset-block-start: 400px;
+    inset-block-start: 460px;
   }
 
   .service-grid {
