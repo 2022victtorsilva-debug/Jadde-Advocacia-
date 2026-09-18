@@ -3,6 +3,7 @@ const menu = document.querySelector(".main-nav");
 const header = document.querySelector(".site-header");
 const hero = document.querySelector(".hero");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let lockedScrollY = 0;
 
 document.body.classList.add("motion-ready");
 
@@ -21,11 +22,35 @@ function updateHeader() {
 updateHeader();
 window.addEventListener("scroll", updateHeader, { passive: true });
 
-function closeMenu() {
+function lockPageScroll() {
+  lockedScrollY = window.scrollY;
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${lockedScrollY}px`;
+  document.body.style.right = "0";
+  document.body.style.left = "0";
+  document.body.style.width = "100%";
+  document.body.classList.add("menu-open");
+}
+
+function unlockPageScroll() {
+  document.body.classList.remove("menu-open");
+  document.body.style.removeProperty("position");
+  document.body.style.removeProperty("top");
+  document.body.style.removeProperty("right");
+  document.body.style.removeProperty("left");
+  document.body.style.removeProperty("width");
+  window.scrollTo(0, lockedScrollY);
+}
+
+function closeMenu({ returnFocus = false } = {}) {
+  const wasOpen = menuButton?.getAttribute("aria-expanded") === "true";
   menuButton?.setAttribute("aria-expanded", "false");
   menuButton?.setAttribute("aria-label", "Abrir menu");
   menu?.classList.remove("is-open");
-  document.body.classList.remove("menu-open");
+  header?.classList.remove("menu-active");
+
+  if (wasOpen) unlockPageScroll();
+  if (returnFocus) menuButton?.focus();
 }
 
 menuButton?.addEventListener("click", () => {
@@ -33,14 +58,27 @@ menuButton?.addEventListener("click", () => {
   menuButton.setAttribute("aria-expanded", String(willOpen));
   menuButton.setAttribute("aria-label", willOpen ? "Fechar menu" : "Abrir menu");
   menu?.classList.toggle("is-open", willOpen);
-  document.body.classList.toggle("menu-open", willOpen);
+  header?.classList.toggle("menu-active", willOpen);
+
+  if (willOpen) {
+    lockPageScroll();
+    menu?.querySelector("a:not(.nav-atuacao)")?.focus({ preventScroll: true });
+  } else {
+    unlockPageScroll();
+  }
 });
 
 menu?.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeMenu();
+  if (event.key === "Escape") closeMenu({ returnFocus: true });
 });
+
+window.addEventListener("resize", () => {
+  if (window.innerWidth > 860) closeMenu();
+});
+
+window.addEventListener("pageshow", () => closeMenu());
 
 const revealItems = document.querySelectorAll(".reveal");
 
